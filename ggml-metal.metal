@@ -3378,27 +3378,25 @@ kernel void kernel_concat(
     device const char * src;
 
     int64_t o[4] = {0, 0, 0, 0};
+    o[dim] = dim == 0 ? ne00 : (dim == 1 ? ne01 : (dim == 2 ? ne02 : ne03));
 
-    if (dim > 0 && i1 < ne01 && i2 < ne02 && i3 < ne03) {
-        src = src0;
-        o[dim] = 0;
-    } else {
-        src = src1;
-        o[dim] = dim == 1 ? ne01 : (dim == 2 ? ne02 : ne03);
-    }
+    //if (dim > 0) {
+    //    if (i1 < ne01 && i2 < ne02 && i3 < ne03) {
+    //        src = src0;
+    //        o[dim] = 0;
+    //        b[dim] = dim == 1 ? nb01 : (dim == 2 ? nb02 : nb03);
+    //    } else {
+    //        src = src1;
+    //        o[dim] = dim == 1 ? ne01 : (dim == 2 ? ne02 : ne03);
+    //        b[dim] = dim == 1 ? nb11 : (dim == 2 ? nb12 : nb13);
+    //    }
+    //}
 
     for (int i0 = tpitg.x; i0 < ne0; i0 += ntg.x) {
-        if (dim == 0) {
-            if (i0 < ne00) {
-                src = src0;
-                o[dim] = 0;
-            } else {
-                src = src1;
-                o[dim] = ne00;
-            }
+        if (i0 < ne00 && i1 < ne01 && i2 < ne02 && i3 < ne03) {
         }
 
-        device const float * x = (device const float *)(src + (i3 - o[3])*nb13 + (i2 - o[2])*nb12 + (i1 - o[1])*nb11 + (i0 - o[0])*nb10);
+        device const float * x = (device const float *)(src + (i3 - o[3])*b[3] + (i2 - o[2])*b[2] + (i1 - o[1])*b[1] + (i0 - o[0])*b[0]);
         device       float * y = (device       float *)(dst + (i3       )*nb3  + (i2       )*nb2  + (i1       )*nb1  + (i0       )*nb0);
 
         *y = *x;
